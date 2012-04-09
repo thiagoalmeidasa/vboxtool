@@ -15,6 +15,7 @@ Revision:
     database server). (bug 2961192 & 2836110)
   - When there is no VRDP-port defined in machines.conf, do not apply this (bug 2893328)
   - Repair double dash option syntax in $vbox_command modifyvm $uuid -vrdpport
+  - Removing the requirement of having a trailing comma in machines.conf (bug 2952485)
 0.4 [2009-07-04]
   - Backup destination path is shown in logfile (feature request 2806034)
   - Extracting of default folders is working again; somewhere (probably in 2.0), the CLI-output

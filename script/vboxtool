@@ -60,13 +60,16 @@ help()
   echo "Configuration file $machines_conf:"
   echo "- each line in this file is a separate machine" 
   echo "- structure of each line: <session name>,<vrdp port>,<host port>-<guest port>|..."
-  echo "- the delimiter ',' between name and VRDP-port is required "
-  echo "- do not use spaces before and after the ',' delimiter"  
+  echo "- the delimiter ',' between name and VRDP-port only required when configuring"
+  echo "  portforwarding"
+  echo "- do not use spaces before and after the first ',' delimiter"  
   echo "- lines can be commented out by '#'"
   echo ""  
   echo "Example for $machines_conf:"
-  echo "Ubuntu Desktop,3391"
-  echo "Ubuntu JeOS,3392,2022-22|80-80"
+  echo "Ubuntu Desktop #1"
+  echo "Ubuntu Desktop #2,3391"
+  echo "Ubuntu JeOS #1,3392,2022-22|80-80"
+  echo "Ubuntu JeOS #2,,2022-22|80-80"
   echo ""
   echo "Example for $vboxtool_conf"
   echo "vbox_user='user'"
@@ -336,7 +339,19 @@ loop()
         # This also requires the config file to be formatted like this: 
         # <session name>,<vrdp port>
         conf_line=`cat $machines_conf | grep "$name,"`
-
+        
+        # But we also like to NOT have a trailing ','. So if there's nothing found,
+        # we search again, without the comma. But now, the WHOLE line must be equal to 
+        # the search string to avoid unwanted substring mismatches.
+        if [ -z "$conf_line" ]
+        then
+          conf_line=`cat $machines_conf | grep "$name"`          
+          if [ "$conf_line" != "$name" ]
+          then
+            conf_line=""
+          fi 
+        fi
+        
         # Only start session when it is found, and not commented out by '#'                 
         if [ -n "$conf_line" ] && [ "${conf_line:0:1}" != "#" ]     
         then       
@@ -416,7 +431,9 @@ loop()
             log "Starting \"$name\" (vrdp=$vrdp_port)"
             $vbox_command startvm $uuid -type vrdp
             log2file "Session \"$name\" started"
-          fi        
+          fi 
+        else 
+          log "No (valid) entry for \"$name\" found in $machines_conf"                 
         fi
       fi
       ;;      
