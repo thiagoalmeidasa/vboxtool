@@ -1,7 +1,12 @@
 Revision:
 0.5
+  - This version will break compatability of 2.x versions, i.e. these are not supported anymore
   - Option syntax single dash is deprecated in VBox 3.1.x. These should be replaced by a double 
     dash. (bug 2908385)
+  - Backup repaired. In 3.x, de extraction for the main vdi-file is changed, grep for "Primary 
+    master" is changed into "(UUID:". Also added log-messages and made copying of snapshots 
+    conditional. (bug 2954442; note that this bug in not enterily solved, because handling 
+    multiple vdi's is not yet supported).
 0.4 [2009-07-04]
   - Backup destination path is shown in logfile (feature request 2806034)
   - Extracting of default folders is working again; somewhere (probably in 2.0), the CLI-output
@@ -71,7 +76,8 @@ Revision:
     Solved by filtering on session name; this is less 'secure' as an unique id, but the 
     session name is displayed by both commands so this is the only solution.
     Later this can be replaced by the new 'metrics' command, introduced in 2.0.0, but that means
-    the script will only work (for that part at least) for 2.0.0 which is at the moment not desirable.  2008-09-08
+    the script will only work (for that part at least) for 2.0.0 which is at the moment not desirable.
+  2008-09-08
   - Bug fixed for trapping multiple instances of VBoxManage. This is the case 
     on rpm-based systems where there are multiple symlinks 'VboxManage'
     - Original line: [ -n $(whereis VBoxManage | awk 'BEGIN{FS="VBoxManage "}{print $2}') ]
