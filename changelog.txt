@@ -5,8 +5,14 @@ Revision:
     dash. (bug 2908385)
   - Backup repaired. In 3.x, de extraction for the main vdi-file is changed, grep for "Primary 
     master" is changed into "(UUID:". Also added log-messages and made copying of snapshots 
-    conditional. (bug 2954442; note that this bug in not enterily solved, because handling 
-    multiple vdi's is not yet supported).
+    conditional. (bug 2954442 & 2903768; note that this bug in not enterily solved, because 
+    handling multiple vdi's is not yet supported).
+  - Extraction of PID for status purposes is made more specific. This is done by using UUID for
+    identification and an extra grep on "[v]irtualbox". This solves the problem that there are
+    multiple PID's returned (thus resulting in an error); this is the case when the name of a 
+    session is a substring of another session and also when the name of the session is, by
+    coincidence the same as another daemon (say: oracle for the vbox-session and for the 
+    database server). (bug 2961192 & 2836110)
 0.4 [2009-07-04]
   - Backup destination path is shown in logfile (feature request 2806034)
   - Extracting of default folders is working again; somewhere (probably in 2.0), the CLI-output

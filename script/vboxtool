@@ -424,7 +424,7 @@ loop()
         # cpu or other info. These are drawn from the 'top' command because especially cpu from 'ps'
         # is not what is expected: it's an average cpu-load since the process started and not 
         # the actual cpu-load. 
-        pid=$(ps -ef | grep "$name" | grep -v grep | awk '{ print $2 }')
+        pid=$(ps -ef | grep "$uuid" | grep "[v]irtualbox" | grep -v grep | awk '{print $2 }')
 
         # The 'top' command delivers the actual cpu-load and memory consumed
         top=$(top -b -n1 -p $pid | grep $pid)
