@@ -347,17 +347,24 @@ loop()
             vrdp_port_config=`echo $conf_line | awk 'BEGIN{FS=","}{print $2}'`
 
             # Check if configured port equals actual port
-            if [ "$vrdp_port_config" != "$vrdp_port" ] 
+            if [ "$vrdp_port_config" != "" ]   
             then 
-              # Changing of the VRDP port can only take place on a powered-off session
-              if [ "$state" == "$state_saved" ] 
-              then
-                log "Discarding state of \"$name\""
-                $vbox_command discardstate $uuid
-              fi
+              if [ "$vrdp_port_config" != "$vrdp_port" ] 
+              then 
+                # Changing of the VRDP port can only take place on a powered-off session
+                if [ "$state" == "$state_saved" ] 
+                then
+                  log "Discarding state of \"$name\""
+                  $vbox_command discardstate $uuid
+                fi
 
-              log "Applying VRDP port $vrdp_port_config to \"$name\""
-              $vbox_command modifyvm $uuid -vrdpport $vrdp_port_config
+                log "Applying VRDP port $vrdp_port_config to \"$name\""
+                $vbox_command modifyvm $uuid --vrdpport $vrdp_port_config
+
+                # Update 'real' vrdp-port for later purposes
+                vrdp_port="$vrdp_port_config"
+
+              fi
             fi
 
             #
@@ -406,7 +413,7 @@ loop()
               done
             fi
             
-            log "Starting \"$name\" (vrdp=$vrdp_port_config)"
+            log "Starting \"$name\" (vrdp=$vrdp_port)"
             $vbox_command startvm $uuid -type vrdp
             log2file "Session \"$name\" started"
           fi        

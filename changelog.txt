@@ -13,6 +13,8 @@ Revision:
     session is a substring of another session and also when the name of the session is, by
     coincidence the same as another daemon (say: oracle for the vbox-session and for the 
     database server). (bug 2961192 & 2836110)
+  - When there is no VRDP-port defined in machines.conf, do not apply this (bug 2893328)
+  - Repair double dash option syntax in $vbox_command modifyvm $uuid -vrdpport
 0.4 [2009-07-04]
   - Backup destination path is shown in logfile (feature request 2806034)
   - Extracting of default folders is working again; somewhere (probably in 2.0), the CLI-output
