@@ -4,7 +4,7 @@
 #
 #  Usage: Type 'vboxtool help' for more information
 #
-#  Copyright (C) 2008 Mark Baaijens <mark.baaijens@gmail.com>
+#  Copyright (C) 2012 Mark Baaijens <mark.baaijens@gmail.com>
 #
 #  This file is part of VBoxTool.
 #
@@ -25,7 +25,7 @@
 version()
 {
   echo "VBoxTool version $version"
-  echo "Copyright 2008 Mark Baaijens"
+  echo "Copyright 2012 Mark Baaijens"
   echo "License GNU GPL version 3 or later"
 }
 
@@ -137,6 +137,13 @@ showconfig()
   do
     echo ' ' $conf_line
   done
+}
+
+start_vbox_session()
+{
+  log "Starting \"$name\" (vm_starttype=$vm_starttype vrdp_port=$vrdp_port)"
+  $vbox_command startvm $uuid --type $vm_starttype
+  log2file "Session \"$name\" started"
 }
 
 loop()
@@ -324,9 +331,7 @@ loop()
         # In any case, the session to start must not be running already
         if [ "$state" != "$state_running" ]
         then   
-          log "Starting \"$name\" (vrdp=$vrdp_port)"
-          $vbox_command startvm $uuid -type vrdp
-          log2file "Session \"$name\" started"
+          start_vbox_session
         fi
       fi
       ;;
@@ -428,9 +433,8 @@ loop()
               done
             fi
             
-            log "Starting \"$name\" (vrdp=$vrdp_port)"
-            $vbox_command startvm $uuid -type vrdp
-            log2file "Session \"$name\" started"
+            # And finally, start the session
+            start_vbox_session
           fi 
         else 
           log "No (valid) entry for \"$name\" found in $machines_conf"                 
@@ -471,27 +475,49 @@ loop()
   done
 }
 
-#
+
 # Retrieve vbox executable name
 #
-
 # The OSE-version uses a all lower case name, i.e. 'vboxmanage' so we
 # have to find out which executable is available.
 if [ -n $(whereis VBoxManage | awk 'BEGIN{FS=" "}{print $2}') ]
 then
-  vbox_command='VBoxManage -nologo'
+  vbox_command='VBoxManage --nologo'
 else
   if [ -n $(whereis vboxmanage | awk 'BEGIN{FS=" "}{print $2}') ]
   then
-    vbox_command='vboxmanage -nologo'
+    vbox_command='vboxmanage --nologo'
   else
     log "Either 'VBoxManage' or 'vboxmanage' is not available, exiting."
     exit 1
   fi
 fi
 
+# Find the correct start-type (vrdp/headless)
+#
+# Differrent (kind of) versions use different kind of type(s) for starting the vm:
+# - 3.x/ose.....: gui|sdl|headless  
+# - 3.x/non-ose.: gui|sdl|vrdp|headless
+# - 4.x/ose.....: gui|sdl|headless
+# - 4.x/non-ose.: gui|sdl|headless
+#
+# Note that on 3.x/non-ose using the headless option, vrdp is disabled (seems logical), 
+# so we cannot safely choose headless as the only one option. 
+#
+# The strategy will be like this: 
+# 1. extract the options, and if there is a vrdp-option available, take that
+# 2. if there is no vrdp-option, use 'headless'
+# 
+vm_starttype=$( $vbox_command help | grep "gui|sdl|vrdp|headless")
+if ([ -n "$vm_starttype" ]) 
+then
+  vm_starttype="vrdp"
+else
+  vm_starttype="headless"
+fi
+
 # Some constants
-version='0.4'
+version='0.5'
 machines_conf='/etc/vboxtool/machines.conf'
 vboxtool_conf='/etc/vboxtool/vboxtool.conf'
 vbox_folder="$HOME/.VirtualBox"   
