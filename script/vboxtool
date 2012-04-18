@@ -199,8 +199,16 @@ loop()
     # "State:<11 spaces><uuid>"
     name=$($vbox_command showvminfo $uuid      | grep "Name:"  | awk 'BEGIN{FS="Name:            "}{print $2}')
     state_raw=$($vbox_command showvminfo $uuid | grep "State:" | awk 'BEGIN{FS="State:           "}{print $2}')
-    vrde_port=`$vbox_command showvminfo $uuid | grep -i $vrde_syntax | awk '{ print $6}'`
+    vrde_port=`$vbox_command showvminfo $uuid | grep -i $vrde_syntax: | awk '{ print $6}'`
     vrde_port=${vrde_port/,/}  # Remove trailing comma
+    
+    # Find out if RDP-server is enabled
+    if [ "$($vbox_command showvminfo $uuid | grep -i $vrde_syntax: | awk '{ print $2}')" == "enabled" ]
+    then
+      vrde_enabled=1
+    else
+      vrde_enabled=0    
+    fi  
 
     # Extract exact state from string state_raw
     # Beware: output from VBoxManage should be exactly as the given strings, i.e. 'running', 'saved', etc.
@@ -371,19 +379,26 @@ loop()
             then 
               if [ "$vrde_port_config" != "$vrde_port" ] 
               then 
-                # Changing of the VRDE port can only take place on a powered-off session
-                if [ "$state" == "$state_saved" ] 
+              
+                # Check if RDP-server is enabled; otherwise setting op vrde-port is useless
+                if [ "$vrde_enabled" == "1" ]
                 then
-                  log "Discarding state of \"$name\""
-                  $vbox_command discardstate $uuid
+              
+                  # Changing of the VRDE port can only take place on a powered-off session
+                  if [ "$state" == "$state_saved" ] 
+                  then
+                    log "Discarding state of \"$name\""
+                    $vbox_command discardstate $uuid
+                  fi
+
+                  log "Applying VRDE port $vrde_port_config to \"$name\""
+                  $vbox_command modifyvm $uuid --${vrde_syntax}port $vrde_port_config
+
+                  # Update 'real' vrde-port for later purposes
+                  vrde_port="$vrde_port_config"
+                else
+                  log "RDP-server is disabled, cannot apply VRDE port $vrde_port_config to \"$name\""                  
                 fi
-
-                log "Applying VRDE port $vrde_port_config to \"$name\""
-                $vbox_command modifyvm $uuid --${vrde_syntax}port $vrde_port_config
-
-                # Update 'real' vrde-port for later purposes
-                vrde_port="$vrde_port_config"
-
               fi
             fi
 
@@ -460,14 +475,14 @@ loop()
         mem=`echo $top | awk '{ print $5}'`
 
         # Show some output
-        echo "$name: state=$state vrde_port=$vrde_port cpu=$cpu% mem=$mem"
+        echo "$name: state=$state vrde_enabled=$vrde_enabled vrde_port=$vrde_port cpu=$cpu% mem=$mem"
       else # Session is not running
 
         # Only show info when no option is given or the option is 'showrun'
         if [ -z "$option" ] || [ $option != "showrun" ] 
         then
           # Show some output
-          echo "$name: state=$state vrde_port=$vrde_port"
+          echo "$name: state=$state vrde_enabled=$vrde_enabled vrde_port=$vrde_port"
         fi
       fi
       ;;

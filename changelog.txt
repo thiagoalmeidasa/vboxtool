@@ -34,6 +34,11 @@ Revision:
     - patch 2948748
   - Do not use VRDP because it is deprecated, use VRDE. To provide backwards compatability with 3.x,
     the correct syntax is determined dynamically (bug 3518250)
+  - Do not set VRDP-ports when VRDP is disabled. This is the case when using 3.x/ose or 4.x without 
+    an extension pack. It is not only useless but also risky because the setting seems to work but 
+    the VRDP-port is not stored, so everytime the session starts, the current state is discarded as 
+    the first step of (trying to) set to VRDP-port. Discarding state multiple times can lead to 
+    data loss of session corruption (bug 3518251)
     
 0.4 [2009-07-04]
   - Backup destination path is shown in logfile (feature request 2806034)
