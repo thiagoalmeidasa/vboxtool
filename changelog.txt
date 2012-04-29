@@ -1,5 +1,6 @@
 Revision:
-0.5
+
+0.5 2012-04-29
   - This version will break compatability of 2.x versions, i.e. these are not supported anymore
     but they may still work
   - Extended compatability:
