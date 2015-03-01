@@ -278,7 +278,7 @@ loop()
 
         # Files are copied on a individual basis to backup only those files which are essential and
         # to provide a clean backup. Log files under $machine_folder/$name/Logs are left out.
-        mkdir -p "$backup_folder/Machines/$name/Snaphots"
+        mkdir -p "$backup_folder/Machines/$name/Snapshots"
 
         # Copy the session config file
         log "Copy $machine_folder/$name/$name.xml to "$backup_folder/Machines/$name""
@@ -286,8 +286,8 @@ loop()
 
         # Copy any snapshots, i.e. delta's (save state = .vdi) + snapshots (= .sav)
         if [ -d "$machine_folder/$name/Snapshots/" ]; then
-          log "Copy $machine_folder/$name/Snapshots/ to "$backup_folder/Machines/$name/Snaphots""
-          rsync -va --progress --delete "$machine_folder/$name/Snapshots/" "$backup_folder/Machines/$name/Snaphots"  --quiet
+          log "Copy $machine_folder/$name/Snapshots/ to "$backup_folder/Machines/$name/Snapshots""
+          rsync -va --progress --delete "$machine_folder/$name/Snapshots/" "$backup_folder/Machines/$name/Snapshots"  --quiet
         else
           log "No snapshot(s) in $machine_folder/$name/Snapshots/ to copy"
         fi        
