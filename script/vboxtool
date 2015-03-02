@@ -280,22 +280,31 @@ loop()
         # to provide a clean backup. Log files under $machine_folder/$name/Logs are left out.
         mkdir -p "$backup_folder/Machines/$name/Snapshots"
 
-        # Copy the session config file
-        log "Copy $machine_folder/$name/$name.xml to "$backup_folder/Machines/$name""
-        rsync -va "$machine_folder/$name/$name.xml" "$backup_folder/Machines/$name" --quiet
-
-        # Copy any snapshots, i.e. delta's (save state = .vdi) + snapshots (= .sav)
-        if [ -d "$machine_folder/$name/Snapshots/" ]; then
-          log "Copy $machine_folder/$name/Snapshots/ to "$backup_folder/Machines/$name/Snapshots""
-          rsync -va --progress --delete "$machine_folder/$name/Snapshots/" "$backup_folder/Machines/$name/Snapshots"  --quiet
+        if [ "$vbox_major_version" -ge 4 ]
+        then
+          # Starting with VirtualBox 4.0, all machine-related files are stored in one folder.
+          # Therefore, copy complete machine folder to backup destination, exclude log files.
+          log "Copy $machine_folder/$name/ to "$backup_folder/Machines/$name""
+          rsync -va "$machine_folder/$name/"* "$backup_folder/Machines/$name" --exclude "Logs/" --quiet
         else
-          log "No snapshot(s) in $machine_folder/$name/Snapshots/ to copy"
-        fi        
+          # Backup procedure for VirtualBox version prior to 4.0
+          # Copy the session config file
+          log "Copy $machine_folder/$name/$name.xml to "$backup_folder/Machines/$name""
+          rsync -va "$machine_folder/$name/$name.xml" "$backup_folder/Machines/$name" --quiet
 
-        # Extract the VDI file name (main session file) of the specified session and copy it
-        vdifile=$($vbox_command showvminfo "$name" | grep "(UUID:" | cut -d":" -f2 | cut -d "(" -f1 | sed -e 's/^[ \t]*//' | sed 's/[ \t]*$//')
-        log "Copy $vdifile to "$backup_folder/VDI""
-        rsync -va --progress "$vdifile" "$backup_folder/VDI" --quiet
+          # Copy any snapshots, i.e. delta's (save state = .vdi) + snapshots (= .sav)
+          if [ -d "$machine_folder/$name/Snapshots/" ]; then
+            log "Copy $machine_folder/$name/Snapshots/ to "$backup_folder/Machines/$name/Snapshots""
+            rsync -va --progress --delete "$machine_folder/$name/Snapshots/" "$backup_folder/Machines/$name/Snapshots"  --quiet
+          else
+            log "No snapshot(s) in $machine_folder/$name/Snapshots/ to copy"
+          fi
+
+          # Extract the VDI file name (main session file) of the specified session and copy it
+          vdifile=$($vbox_command showvminfo "$name" | grep "(UUID:" | cut -d":" -f2 | cut -d "(" -f1 | sed -e 's/^[ \t]*//' | sed 's/[ \t]*$//')
+          log "Copy $vdifile to "$backup_folder/VDI""
+          rsync -va --progress "$vdifile" "$backup_folder/VDI" --quiet
+        fi
 
         # Restart session, only if is it was running before backing up
         if [ "$state" == "$state_running" ]
@@ -507,6 +516,9 @@ else
     exit 1
   fi
 fi
+
+# Retrieve VirtualBox major version number
+vbox_major_version=$($vbox_command --version | cut -f1 -d.)
 
 # Find the correct start-type (vrdp/headless)
 #
