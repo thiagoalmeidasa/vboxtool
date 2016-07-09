@@ -31,7 +31,7 @@ version()
 
 usage()
 {
-  echo "Usage: vboxtool show|showrun|showconfig|start|autostart|save|stop|backup|version|help [session]"
+  echo "Usage: vboxtool show|showrun|showconfig|start|autostart|save|stop|backup|configuration|version|help [session]"
   echo "Show info about VirtualBox sessions or control those sessions."
   echo "Type 'vboxtool help' for more information."    
 }
@@ -52,8 +52,13 @@ help()
   echo "  save [session]    Save all running sessions or only the given session."
   echo "  stop [session]    Stop all running sessions or only the given session."
   echo "  backup [session]  Backup all running sessions or only the given session."
+  echo "  configuration     Show a complete configuration info."
   echo "  --version|version Version info."
   echo "  --help|help       This help."
+}
+
+configuration()
+{
   echo ""
   echo "*Configuration. vboxtool depends on two config files, located in /etc/vboxtool."
   echo ""
@@ -650,6 +655,9 @@ showconfig)
   ;;
 help)
   help
+  ;;
+configuration)
+  configuration
   ;;
 --help)
   help  
