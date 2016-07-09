@@ -101,7 +101,7 @@ help()
   echo "*The backup command copies all session files to a safe location. This includes"
   echo "the configuration file(s), main VDI file and all snapshots. Running sessions"
   echo "are saved and started after backup has completed. The default backup folder is"
-  echo "relative to the vbox folder: <vbox_folder>/.backup. Underneith, subfolders VDI and "
+  echo "relative to the vbox folder: <vbox_folder>/.backup. Underneath, subfolders VDI and "
   echo "Machines are created."
   echo "Backups can be automated by putting something like in /etc/crontab:"
   echo "05 2    * * *   <user name>    vboxtool backup &"
