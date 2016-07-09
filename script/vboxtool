@@ -202,7 +202,7 @@ loop()
     # Beware: output from VBoxManage should be something like this
     # "Name:<12 spaces><uuid>"
     # "State:<11 spaces><uuid>"
-    name=$($vbox_command showvminfo $uuid      | grep "Name:"  | awk 'BEGIN{FS="Name:            "}{print $2}')
+    name=$($vbox_command showvminfo $uuid      | head | grep "Name:"  | awk 'BEGIN{FS="Name:            "}{print $2}')
     state_raw=$($vbox_command showvminfo $uuid | grep "State:" | awk 'BEGIN{FS="State:           "}{print $2}')
     vrde_port=`$vbox_command showvminfo $uuid | grep -i $vrde_syntax: | awk '{ print $6}'`
     vrde_port=${vrde_port/,/}  # Remove trailing comma
@@ -564,7 +564,7 @@ fi
 version='0.6'
 machines_conf='/etc/vboxtool/machines.conf'
 vboxtool_conf='/etc/vboxtool/vboxtool.conf'
-vbox_folder="$HOME/.VirtualBox"   
+vbox_folder="$HOME/VirtualBox VMs/"   
 log_file="$vbox_folder/vboxtool.log"
 
 # Retrieve settings from config file, just by executing the config file.
