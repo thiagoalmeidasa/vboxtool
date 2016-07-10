@@ -55,6 +55,12 @@ stop()
   nohup $su_command "vboxtool save" > /dev/null
 }
 
+status()
+{
+  # 'vboxtoolinit status' maps to 'vboxtool status'; check for  all running sessions.
+  $su_command "vboxtool showrun"
+}
+
 restart()
 {
   stop
@@ -95,6 +101,9 @@ start)
 stop)
   stop
   ;;
+status)
+  status
+  ;;
 restart)
   restart
   ;;  
@@ -103,4 +112,3 @@ restart)
 esac
 
 exit 0
-
