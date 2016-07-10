@@ -268,14 +268,14 @@ loop()
       if [ "$name" == "$option_session_name" ] || [ ! -n "$option_session_name" ]
       then
 
-        # Save the session to provide a stabile snapshot
+        # Save the session to provide a stable snapshot
         if [ "$state" == "$state_running" ]
         then
-          log "Pauzing \"$name\""
+          log "Pausing \"$name\""
           $vbox_command controlvm $uuid pause
           log "Session \"$name\" paused"
 
-          # Apparantly, saving a session is asynchronous, i.e. the session is not (entirely) 
+          # Apparently, saving a session is asynchronous, i.e. the session is not (entirely) 
           # saved even if the command line has returned. Starting the same session immediately
           # results in an error, stating the session is already running.
           sleep 1
@@ -615,19 +615,19 @@ backup)
   log2file "Started command: $1 $2"
 
   # Dynamic folders
-  vdi_folder=$($vbox_command list systemproperties | grep "Default VDI" | cut -d":" -f2 | sed -e 's/[[:space:]]//g')
+  vdi_folder=$($vbox_command list systemproperties | grep "Default VDI" | cut -d":" -f2 | sed -e 's/^[ \t  ]*//')
 
   # Output stating VDI location is changed (somewhere in 2.x?) to "Default hard disk folder"; to provide 
   # backwards compatability, we should check that also
   if [ ! -n "$vdi_folder" ]
   then
-    vdi_folder=$($vbox_command list systemproperties | grep "Default hard disk" | cut -d":" -f2 | sed -e 's/[[:space:]]//g')
+    vdi_folder=$($vbox_command list systemproperties | grep "Default hard disk" | cut -d":" -f2 | sed -e 's/^[ \t ]*//')
   fi
 
-  machine_folder=$($vbox_command list systemproperties | grep "Default machine" | cut -d":" -f2 | sed -e 's/[[:space:]]//g')
+  machine_folder=$($vbox_command list systemproperties | grep "Default machine" | cut -d":" -f2 | sed -e 's/^[ \t ]*//')
 
   log "Default hard disk folder: $vdi_folder"
-  log "Default machine folder: $machine_folder"
+  log "Default machine folder: ${machine_folder}"
 
   # Backup folder is fixed and relative to the vbox folder
   log "Backup folder: $backup_folder"
