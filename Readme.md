@@ -15,6 +15,9 @@ function is not working in another environment, say OpenSUSE, Fedora, etc.
 > **Note.** Precede commands with 'sudo' when not operated as root.
 
 * Place the main script `script/vboxtool` in `/usr/local/bin`
+```bash
+    cp script/vboxtool /usr/local/bin/vboxtool
+```
 
 * Make vboxtool executable: 
 ```bash
@@ -22,6 +25,9 @@ function is not working in another environment, say OpenSUSE, Fedora, etc.
 ```
 
 * Place the init script `script/vboxtoolinit` in `/etc/init.d`
+```bash
+    cp script/vboxtoolinit /etc/init.d/vboxtoolinit
+```
 
 * Make vboxtoolinit executable: 
 ```bash
